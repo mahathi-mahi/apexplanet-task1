@@ -1,0 +1,37 @@
+Task 5: Finalization, Deployment, and Presentation
+This phase involves preparing the app for release. One key aspect is setting up a CI/CD pipeline to automate builds and tests. This is typically done with tools like GitHub Actions or Jenkins. The code below is a basic GitHub Actions workflow for an Android app.
+
+android-ci.yml (Place this in .github/workflows/)
+
+YAML
+
+name: Android CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Run unit tests
+      run: ./gradlew test
