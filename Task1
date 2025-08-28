@@ -1,0 +1,86 @@
+Task 1: Onboarding and Environment Setup
+This task involves creating a simple introductory screen to welcome users to the app. We'll use a ViewPager to allow users to swipe through a few intro slides.
+
+1. onboarding_item_layout.xml (The layout for each slide)
+
+XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/onboarding_image"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/onboarding_image_description" />
+
+    <TextView
+        android:id="@+id/onboarding_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/onboarding_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="16sp" />
+</LinearLayout>
+2. OnboardingItem.kt (A data class to hold content for each slide)
+
+Kotlin
+
+data class OnboardingItem(
+    val image: Int,
+    val title: String,
+    val description: String
+)
+3. OnboardingPagerAdapter.kt (The adapter to manage the slides)
+
+Kotlin
+
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.viewpager.widget.PagerAdapter
+
+class OnboardingPagerAdapter(private val context: Context, private val onboardingItems: List<OnboardingItem>) : PagerAdapter() {
+
+    override fun getCount(): Int = onboardingItems.size
+
+    override fun isViewFromObject(view: View, `object`: Any): Boolean {
+        return view == `object`
+    }
+
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        val view = LayoutInflater.from(context).inflate(R.layout.onboarding_item_layout, container, false)
+        val item = onboardingItems[position]
+
+        val imageView: ImageView = view.findViewById(R.id.onboarding_image)
+        val titleTextView: TextView = view.findViewById(R.id.onboarding_title)
+        val descriptionTextView: TextView = view.findViewById(R.id.onboarding_description)
+
+        imageView.setImageResource(item.image)
+        titleTextView.text = item.title
+        descriptionTextView.text = item.description
+
+        container.addView(view)
+        return view
+    }
+
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        container.removeView(`object` as View)
+    }
+}
