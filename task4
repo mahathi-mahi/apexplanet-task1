@@ -1,0 +1,72 @@
+Task 4: Advanced Features and Testing
+This phase focuses on making the app more robust with features like user authentication (using Firebase) and unit tests to ensure code stability.
+
+1. build.gradle (Module: app)
+
+Add the Firebase Authentication dependency.
+
+Groovy
+
+dependencies {
+    implementation 'com.google.firebase:firebase-auth-ktx'
+}
+2. AuthManager.kt (A class to handle Firebase Authentication)
+
+Kotlin
+
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
+class AuthManager {
+    private val auth: FirebaseAuth = Firebase.auth
+
+    fun register(email: String, password: String, onComplete: (isSuccess: Boolean) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                onComplete(task.isSuccessful)
+            }
+    }
+
+    fun login(email: String, password: String, onComplete: (isSuccess: Boolean) -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                onComplete(task.isSuccessful)
+            }
+    }
+
+    fun logout() {
+        auth.signOut()
+    }
+}
+3. TaskViewModelTest.kt (Example Unit Test using JUnit)
+
+Kotlin
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import org.mockito.Mockito.*
+
+class TaskViewModelTest {
+
+    @Test
+    fun get_tasks_returns_expected_list() {
+        // Mock a list of tasks
+        val tasks = listOf(
+            Task("1", "Go to the grocery store", false),
+            Task("2", "Finish Android project", true)
+        )
+        
+        // Use a mock repository
+        val mockRepository = mock(TaskRepository::class.java)
+        
+        // When the mock repository's getTasks() method is called, return our mock list
+        `when`(mockRepository.getTasks()).thenReturn(tasks)
+        
+        // Create an instance of the ViewModel with the mocked repository
+        val viewModel = TaskViewModel(mockRepository)
+        
+        // Assert that the ViewModel's task list is the same as our mock list
+        assertEquals(tasks, viewModel.tasks.value)
+    }
+}
