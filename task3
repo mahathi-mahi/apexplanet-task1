@@ -1,0 +1,64 @@
+Task 3: Backend Integration and API Development
+Here, we'll use Retrofit to connect our app to a mock API that provides a list of tasks. We'll simulate fetching tasks from a remote server.
+
+1. build.gradle (Module: app)
+
+Add the following dependencies to enable Retrofit and Gson.
+
+Groovy
+
+dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+}
+2. ApiService.kt (The Retrofit interface)
+
+This interface defines the API endpoints we want to access.
+
+Kotlin
+
+import retrofit2.Response
+import retrofit2.http.GET
+
+interface ApiService {
+    @GET("todos")
+    suspend fun getTasks(): Response<List<Task>>
+}
+3. RetrofitClient.kt (A singleton to create the Retrofit instance)
+
+Kotlin
+
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object RetrofitClient {
+    private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
+
+    val apiService: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
+4. TaskRepository.kt (To handle data fetching logic)
+
+This is where you'll call the API from a ViewModel.
+
+Kotlin
+
+import com.example.taskmanager.network.RetrofitClient
+
+class TaskRepository {
+    private val apiService = RetrofitClient.apiService
+
+    suspend fun getTasks(): List<Task> {
+        val response = apiService.getTasks()
+        if (response.isSuccessful) {
+            return response.body() ?: emptyList()
+        } else {
+            throw Exception("Failed to fetch tasks")
+        }
+    }
+}
