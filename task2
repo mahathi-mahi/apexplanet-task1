@@ -1,0 +1,94 @@
+Task 2: Designing and Implementing UI/UX
+This is where we'll build the main UI for the Task Management App, including a RecyclerView to display a list of tasks.
+
+1. activity_main.xml (The main screen with a list of tasks)
+
+XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/task_list_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="72dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_task_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/add_new_task"
+        android:src="@drawable/ic_add" />
+
+</RelativeLayout>
+2. task_item_layout.xml (Layout for a single task item in the list)
+
+XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <CheckBox
+        android:id="@+id/task_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/task_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="8dp"
+        android:textSize="18sp"
+        android:textColor="@android:color/black" />
+</LinearLayout>
+3. TaskAdapter.kt (The adapter to bind data to the RecyclerView)
+
+Kotlin
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+data class Task(val id: String, val title: String, var isCompleted: Boolean)
+
+class TaskAdapter(private val tasks: List<Task>, private val onTaskClick: (Task) -> Unit) :
+    RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+
+    class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val checkbox: CheckBox = view.findViewById(R.id.task_checkbox)
+        val title: TextView = view.findViewById(R.id.task_title)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.task_item_layout, parent, false)
+        return TaskViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
+        val task = tasks[position]
+        holder.title.text = task.title
+        holder.checkbox.isChecked = task.isCompleted
+
+        holder.itemView.setOnClickListener {
+            onTaskClick(task)
+        }
+    }
+
+    override fun getItemCount() = tasks.size
+}
